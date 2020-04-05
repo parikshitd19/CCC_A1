@@ -5,7 +5,9 @@ punctuation = string.punctuation
 hashtags = dict()
 languages = dict()
 
-f = open("tinyTwitter.json")
+f = open("data/tinyTwitter.json")
+#f = open("data/smallTwitter.json")
+#f = open("data/bigTwitter.json")
 parser = ijson.parse(f)
 
 

@@ -1,10 +1,18 @@
 import ijson
 import string
+from mpi4py import MPI
+from pprintpp import pprint
+
+
+comm = MPI.COMM_WORLD
+comm.Barrier()
+size = comm.size
 
 punctuation = string.punctuation
 hashtags = dict()
 languages = dict()
 
+rank = comm.rank
 f = open("data/tinyTwitter.json")
 #f = open("data/smallTwitter.json")
 #f = open("data/bigTwitter.json")

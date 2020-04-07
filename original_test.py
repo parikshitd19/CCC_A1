@@ -22,6 +22,7 @@ parser = ijson.parse(f)
 try:
     #find each part of json in stream
     for prefix,event,value in parser:
+        print(prefix,value)
         #print(prefix ,value)
         #check for language
         if prefix == "rows.item.doc.metadata.iso_language_code":

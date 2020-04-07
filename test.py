@@ -6,7 +6,7 @@ import os
 
 #mpi variables
 comm = MPI.COMM_WORLD
-#comm.Barrier()
+comm.Barrier()
 size = comm.size
 rank = comm.rank
 
@@ -19,15 +19,15 @@ f_name = "data/tinyTwitter.json"
 #open file
 f = open(f_name,"r")
 
-#read file length
-f_len = sum(1 for line in f) 
-pprint(f_len)
 
 
 ####################################
 #use No. of processes to split lines in file 
 ####################################
 if rank == 0:
+#read file length
+    f_len = sum(1 for line in f) 
+    pprint(f_len)
     #t_size doesn't include master
     t_size = size-1
     last_lines = 0
@@ -51,6 +51,7 @@ if rank == 0:
         for j,chunk in enumerate(split,1):
             comm.send(chunk,dest=j)
     else:
+        #need fix here for only one node
         pprint("What do you do if theres only one node????")
     h_result = dict()
     l_result = dict()
@@ -74,7 +75,7 @@ else:
     end = int(chunk[1]) - 1
     ################
     #misc
-    punctuation = string.punctuation
+    #punctuation = string.punctuation
     hashtags = dict()
     languages = dict()
     try:
@@ -100,6 +101,13 @@ else:
                     word = str()
                     #make lower
                     value = value.lower()
+                    if value in languages:
+                        hashtags[value] = hashtags[value]+1
+                        break
+                    else:
+                        hashtags[value] = 1
+                        break
+                    '''
                     #loop over word to check for punctuation
                     for i,letter in enumerate(value):
                         #if punctuation found, add and break
@@ -122,6 +130,7 @@ else:
                         #add letter to created word
                         else:
                             word = word + letter
+                    '''
                 else:
                     pass
     #catch exception

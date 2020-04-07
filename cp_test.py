@@ -24,18 +24,17 @@ f = open(f_name,"r")
 #use No. of processes to split lines in file 
 ####################################
 if rank == 0:
-#read file length
-    f_len = sum(1 for line in f) 
-    print(f_len)
+    #read file length
+    f_size = os.path.getsize(f_name)
+    print(f_size)
     #t_size doesn't include master
     t_size = size-1
     last_lines = 0
-    split = []
+    t_size = 3
+    duration = f_size/t_size
+    split = [(int(i * duration),int((i+1) * duration)) for i in range(t_size)]
+    print(split)
     #check if split will get integers
-    if f_len%t_size > 0:
-        last_lines = f_len%t_size
-        print(last_lines)
-        f_len = f_len - last_lines 
     #split based on processes given
     if size > 1:
         lines = f_len/t_size
@@ -102,8 +101,10 @@ else:
                     value = value.lower()
                     if value in languages:
                         hashtags[value] = hashtags[value]+1
+                        break
                     else:
                         hashtags[value] = 1
+                        break
                     '''
                     #loop over word to check for punctuation
                     for i,letter in enumerate(value):

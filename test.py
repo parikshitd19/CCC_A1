@@ -1,7 +1,6 @@
 import ijson
 import string
 from mpi4py import MPI
-from pprintpp import pprint
 import os
 
 #mpi variables
@@ -27,7 +26,7 @@ f = open(f_name,"r")
 if rank == 0:
 #read file length
     f_len = sum(1 for line in f) 
-    pprint(f_len)
+    print(f_len)
     #t_size doesn't include master
     t_size = size-1
     last_lines = 0
@@ -35,7 +34,7 @@ if rank == 0:
     #check if split will get integers
     if f_len%t_size > 0:
         last_lines = f_len%t_size
-        pprint(last_lines)
+        print(last_lines)
         f_len = f_len - last_lines 
     #split based on processes given
     if size > 1:
@@ -46,13 +45,13 @@ if rank == 0:
                 split.append([(lines*i)+1,(lines*(i+1)) + last_lines])
             else:
                 split.append([(lines*i)+1,lines*(i+1)])
-        pprint(split)
+        print(split)
         #send out to each process
         for j,chunk in enumerate(split,1):
             comm.send(chunk,dest=j)
     else:
         #need fix here for only one node
-        pprint("What do you do if theres only one node????")
+        print("What do you do if theres only one node????")
     h_result = dict()
     l_result = dict()
     for i in range(t_size):

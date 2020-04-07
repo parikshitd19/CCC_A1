@@ -15,8 +15,6 @@ f_name = "data/tinyTwitter.json"
 #f_name = "data/bigTwitter.json"
 
 
-#open file
-f = open(f_name,"r")
 
 
 
@@ -24,6 +22,8 @@ f = open(f_name,"r")
 #use No. of processes to split lines in file 
 ####################################
 if rank == 0:
+    #open file
+    f = open(f_name,"r")
     #read file length
     f_size = os.path.getsize(f_name)
     print(f_size)
@@ -32,25 +32,27 @@ if rank == 0:
     last_lines = 0
     t_size = 3
     duration = f_size/t_size
-    split = [(int(i * duration),int((i+1) * duration)) for i in range(t_size)]
-    print(split)
-    #check if split will get integers
-    #split based on processes given
-    if size > 1:
-        lines = f_len/t_size
-        for i in range(t_size):
-            #if last add last few lines taken from last if statement
-            if i == t_size-1:
-                split.append([(lines*i)+1,(lines*(i+1)) + last_lines])
-            else:
-                split.append([(lines*i)+1,lines*(i+1)])
-        print(split)
-        #send out to each process
-        for j,chunk in enumerate(split,1):
-            comm.send(chunk,dest=j)
+    splits = [[int(i * duration),int((i+1) * duration)] for i in range(t_size)]
+    print(splits)
+
+    for i,split in enumerate(splits):
+        start,end = split
+        if len(splits) == i+1:
+            break
+        f.seek(end)
+        f.readline()
+        splits[i][1] = f.tell() -1
+        splits[i+1][0] = f.tell() 
+    print(splits)
+    print("###########################")
+    f.close()
+    for j,chunk in enumerate(splits,1):
+        comm.send(chunk,dest=j)
+    '''
     else:
         #need fix here for only one node
         print("What do you do if theres only one node????")
+    '''
     h_result = dict()
     l_result = dict()
     for i in range(t_size):
@@ -66,71 +68,40 @@ if rank == 0:
 ####################################
 else:
     ################
+    #open file
+    f = open(f_name,"r")
     chunk = comm.recv(source=0)
-    f.seek(0)
-    parser = ijson.parse(f)
-    start = int(chunk[0]) - 1
-    end = int(chunk[1]) - 1
+    start = chunk[0]
+    end = chunk[1]
     ################
     #misc
-    #punctuation = string.punctuation
     hashtags = dict()
     languages = dict()
+    f.seek(start)
+    parser = ijson.parse(f)
     try:
-        j = 0
         #find each part of json in stream
-        for prefix,event,value in parser:
-            #check for language
-            if prefix == "rows.item.doc.metadata.iso_language_code":
-                if j >= start and j <= end:
-                    #add 1 if already in dict
-                    if value in languages:
-                        languages[value] = languages[value]+1
-                    #add to dict
-                    else:
-                        languages[value] = 1
-                    j += 1
-                else:
-                    j += 1
-                    pass
-            if prefix == "rows.item.doc.entities.hashtags.item.text":
-                if j >= start and j <= end:
-                    #create new word
-                    word = str()
-                    #make lower
-                    value = value.lower()
-                    if value in languages:
-                        hashtags[value] = hashtags[value]+1
-                        break
-                    else:
-                        hashtags[value] = 1
-                        break
-                    '''
-                    #loop over word to check for punctuation
-                    for i,letter in enumerate(value):
-                        #if punctuation found, add and break
-                        if (letter in punctuation):
-                            if word in languages:
-                                hashtags[word] = hashtags[value]+1
-                                break
-                            else:
-                                hashtags[word] = 1
-                                break
-                        #if length of word reached, add and break
-                        elif (len(value) == i+1):
-                            word = word + letter
-                            if word in languages:
-                                hashtags[word] = hashtags[value]+1
-                                break
-                            else:
-                                hashtags[word] = 1
-                                break
-                        #add letter to created word
+        print(rank,f.tell(),start,end)
+        while f.tell() <= end:
+            print(f.tell(),rank)
+            for prefix,event,value in parser:
+                #check for language
+                if prefix == "rows.item.doc.metadata.iso_language_code":
+                        #add 1 if already in dict
+                        if value in languages:
+                            languages[value] = languages[value]+1
+                        #add to dict
                         else:
-                            word = word + letter
-                    '''
-                else:
-                    pass
+                            languages[value] = 1
+                if prefix == "rows.item.doc.entities.hashtags.item.text":
+                        #create new word
+                        word = str()
+                        #make lower
+                        value = value.lower()
+                        if value in languages:
+                            hashtags[value] = hashtags[value]+1
+                        else:
+                            hashtags[value] = 1
     #catch exception
     except Exception as e:
         print("")

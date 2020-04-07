@@ -82,17 +82,31 @@ else:
     #misc
     hashtags = dict()
     languages = dict()
+    f.seek(0)
+    line_len = len(f.readline())
+    print(line_len)
     f.seek(start)
     print(rank, "this is the start", start, f.tell())
-    parser = ijson.parse(f)
+    parser = ijson.parse(f,buf_size=line_len)
+
     try:
         #find each part of json in stream
         print("breaks after this",f.tell(),rank)
         f_size = os.path.getsize(f_name)
         print(f_size)
+        if rank > 1:
+            f.seek(0)
+            print(f.tell())
+            for prefix,event,value in parser:
+                if f.tell() == line_len:
+                    f.seek(start)
+                    break
+                elif f.tell() > line_len:
+                    f.seek(start)
+                    print("fail",f.tell())
+                    break
         for prefix,event,value in parser:
-            if rank == 2:
-             print(rank, f.tell(),end,(f.tell()<end))
+            print(rank, f.tell(),end,(f.tell()<end))
             if f.tell() < end:
                 #check for language
                 if prefix == "rows.item.doc.metadata.iso_language_code":

@@ -14,7 +14,7 @@
 
 
 # The maximum running time of the job in days-hours:mins:sec
-#SBATCH --time=00:00:02
+#SBATCH --time=00:00:30
 
 # check that the script is launched with sbatch
 if [ "x$SLURM_JOB_ID" == "x" ]; then
@@ -25,5 +25,5 @@ fi
 # Run the job from the directory where it was launched (default)
 module load Python/3.7.3-spartan_gcc-8.1.0
 #python -m pip install --user ijson pprint
-mpirun -n 4 python test.py 
+mpirun -n 4 python experiment.py 
 

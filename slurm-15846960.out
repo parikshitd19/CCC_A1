@@ -1,0 +1,31 @@
+--------------------------------------------------------------------------
+No OpenFabrics connection schemes reported that they were able to be
+used on a specific port.  As such, the openib BTL (OpenFabrics
+support) will be disabled for this port.
+
+  Local host:           spartan-bm055
+  Local device:         mlx5_bond_0
+  Local port:           1
+  CPCs attempted:       rdmacm
+--------------------------------------------------------------------------
+[spartan-bm055.hpc.unimelb.edu.au:41111] pml_ucx.c:223 Error: UCP worker does not support MPI_THREAD_MULTIPLE
+[spartan-bm055.hpc.unimelb.edu.au:41110] pml_ucx.c:223 Error: UCP worker does not support MPI_THREAD_MULTIPLE
+[spartan-bm055.hpc.unimelb.edu.au:41112] pml_ucx.c:223 Error: UCP worker does not support MPI_THREAD_MULTIPLE
+[spartan-bm055.hpc.unimelb.edu.au:41109] pml_ucx.c:223 Error: UCP worker does not support MPI_THREAD_MULTIPLE
+20761096558
+[[0, 6920365519], [6920365519, 13840731038], [13840731038, 20761096558]]
+[[0, 6920369824], [6920369825, 13840731725], [13840731726, 20761096558]]
+###########################
+1 0 0 6920369824
+0 1
+2 6920369825 6920369825 13840731725
+6920369825 2
+
+3 13840731726 13840731726 20761096558
+13840731726 3
+
+
+{'500daysofsummer': 1, 'エッセイ漫画': 1, 'morrisonfires': 1, 'freak': 1, 'howdareyou': 1, 'bolsonaromaisforteem2020': 1, 'send': 1, 'priorities': 1, 'ilovesydney': 1, 'kirribillihouse': 1, 'thedeaddaisies': 1, 'happynewyear2020': 1, 'burnnewscorp': 1, 'detomasotuesday': 1, 'lockhimup': 1, 'adapt': 1, 'nye19': 1, 'aleague': 1, 'firstwoman': 1, 'pushawardsmaywards': 1, 'australia': 1, 'loveislandau': 1, 'primeminister': 1, 'countdown2020withpeck': 1, 'kiis1065': 1, 'my': 1, 'awarmchristmas': 1, 'سنة_جديدة_2020': 1, 'nswfires': 1, 'joseout': 1, '姉君のお家から次の目的地へ': 1, 'vipassana': 1, 'liarfromtheshire': 1, 'タイ': 1, 'notmyprimeminister': 1, 'バンコク': 1, 'ringinthenewyear': 1, '9news': 1, 'scottyfrommarketing': 1, 'carol': 1, 'fatca': 1, 'drones': 1, 'denierfromtheshire': 1, 'democracy': 1, 'aliens': 1, '2010vs2020': 1, 'tofop': 1, 'wherisadam': 1, 'newyearsday2020': 1, 'twitterson': 1, 'gorabbitohs': 1, 'energyaccess': 1, 'avstwitterpsychic': 1, 'happynewyear': 1, 'scottyfommarketing': 1, 'rbd': 1, 'sackfomo': 1, 'australiaburns': 1, 'newyearresolutions': 1, 'riseofskywalker': 1, 'adventure': 1, 'indiemusic': 1, 'oldestproudestloudest': 1, 'fe3h': 1, 'bushfirecrisis': 1, 'urbangardens': 1, 'victoriafires': 1, 'b3d': 1, 'eastgippsland': 1, 'exclusive': 1, 'talachallenge': 1, 'workout': 1, 'hacked': 1, 'freaking': 1, 'thaibl': 1, 'asktgc': 1, 'thefinger': 1, 'sideproject': 1, 'climatechangeisreal': 1, 'happynewdecade': 1, 'เค้าท์ดาวน์2020กับพี่เป๊ก': 1, 'canberra': 1, 'nswpol': 1, 'travel': 1, 'hookem': 1, 'bilpin': 1, 'newyearseve': 1, 'sonicmovie': 1, 'coalman': 1, 'animation': 1, 'เป๊กผลิตโชค': 1, 'bemboka': 1, 'hypnosis': 1, 'mallacoota': 1, 'spaceman': 1, 'ausmedia': 1, 'update': 1, 'spygate': 1, 'tesla': 1, 'dawnismydarling': 1, 'career': 1, 'climate': 1, 'climatecriminals': 1, 'twitter': 1, 'sydneynye': 1, 'asmsg': 1, 'auspol': 1, 'deniers': 1, '筋肉痛': 1, 'spider': 1, 'memories': 1, 'southcoastfires': 1, 'syria': 1, 'カラオケ': 1, 'koalakiller': 1, 'seekrc': 1, 'tales': 1, 'kpop': 1, 'msm': 1, 'area51': 1, 'climateemergency': 1, 'freelance': 1, 'batemansbay': 1, 'astroman': 1, 'readysettokyo': 1, 'nowplaying': 1, 'torvsmin': 1, 'bloodsun': 1, 'hny2020': 1, 'sydnye': 1, 'boudiccagrandvoyage': 1, 'configmgr': 1, 'fireworks': 1, 'carols': 1, 'scomo': 1, 'sydney': 1, 'goavsgo': 1, 'israel': 1, 'aisbangkokcountdown2020xpeck': 1, 'texperkins': 1, 'wordpress': 1, 'cop25': 1, 'fauxmo': 1, 'powerapps': 1, 'stowaway': 1, 'imwithlaura': 1, 'happy': 1, 'thriller': 1, 'decadechallenge': 1, 'skål': 1, 'nye2020': 1, 'bushfires': 1, 'labor': 1, 'コミックエッセイ': 1, 'อิจฉาจ้า': 1, 'climatesciencesilencers': 1, 'climatecrisis': 1, 'socialmedia': 1, '2020willbetheyearfor': 1, 'contentcreation': 1, 'theirabc': 1, 'brisbane': 1, 'smoko': 1, 'เศร้า': 1, '8yearsof5sos': 1, 'stratossaturday': 1, 'เคาท์ดาวน์2020กับพี่เป๊ก': 1, 'btc': 1, 'traveltips': 1, 'berejiklianbushfires': 1, 'wankpuffin': 1, 'scottludlum': 1, 'gardening': 1, 'dynamics365': 1, 'nye': 1, 'fortnite': 1, 'quote': 1, 'microsoft': 1, 'hongkongprotest': 1, 'peoplearedying': 1, 'sydneyoperahouse': 1, 'australianfires': 1, '8コマ漫画': 1, 'littlemanmorrison': 1, 'theirishmanfilm': 1, 'wintervacation': 1, 'timorleste': 1, 'sailormoon': 1, 'nswbushfires': 1, 'sackscummo': 1, 'peckpalitchoke': 1, 'ejami': 1, 'nyefireworks': 1, 'nigeria': 1, 'sydneynyefireworks': 1, '日常漫画': 1, 'climatechange': 1, 'yay': 1, 'lakeconjola': 1, 'abc': 1, 'streamer': 1, 'youvestolenmychildhood': 1, 'duindorp': 1, 'newyearsday': 1, 'powerplatform': 1, 'kenzobaby': 1, 'vicfires': 1, 'palestine': 1, 'เซียวจ้านxiaozhan肖战': 1, 'bedaring': 1, 'billofrights': 1, 'histfic': 1, 'makers': 1, 'sylvix': 1, 'nederland': 1, 'romannumerals': 1, 'bushfiresnsw': 1, 'lastdaysdepravity': 1, 'cheers': 1, 'electriccar': 1, 'bringbacktony': 1, 'nicolafinetti': 1, 'thisisnotjournalism': 1, 'breaking': 1, 'bulltitts': 1, 'クリスマスは来てないけど': 1}
+{'ja': 14, 'ko': 7, 'et': 3, 'es': 30, 'pl': 2, 'cy': 1, 'tl': 10, 'de': 4, 'lt': 1, 'sv': 1, 'ne': 1, 'in': 10, 'no': 1, 'pt': 47, 'eu': 2, 'ca': 1, 'fr': 43, 'ro': 1, 'nl': 5, 'und': 162, 'tr': 6, 'fa': 5, 'ht': 2, 'th': 24, 'ar': 10, 'zh': 6, 'it': 2, 'hu': 1, 'en': 2049, 'ru': 5}
+[spartan-bm055.hpc.unimelb.edu.au:41104] 3 more processes have sent help message help-mpi-btl-openib-cpc-base.txt / no cpcs for port
+[spartan-bm055.hpc.unimelb.edu.au:41104] Set MCA parameter "orte_base_help_aggregate" to 0 to see all help / error messages

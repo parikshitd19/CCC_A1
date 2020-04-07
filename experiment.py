@@ -10,9 +10,9 @@ size = comm.size
 rank = comm.rank
 
 
-f_name = "data/tinyTwitter.json"
+#f_name = "data/tinyTwitter.json"
 #f_name = "data/smallTwitter.json"
-#f_name = "data/bigTwitter.json"
+f_name = "data/bigTwitter.json"
 
 
 
@@ -61,8 +61,13 @@ if rank == 0:
                 set(h_result) | set(result[0])}
         l_result = {key: l_result.get(key,0) + result[1].get(key,0) for key in
                 set(l_result) | set(result[1])}
-    print(h_result)
-    print(l_result)
+
+    h_sorted = dict(sorted(h_result.iteritems(), key=operator.itemgetter(1),
+    reverse=True)[:10]
+    l_sorted = dict(sorted(l_result.iteritems(), key=operator.itemgetter(1),
+    reverse=True)[:10]
+    print(h_sorted_
+    print(l_sorted)
 
 
 ####################################

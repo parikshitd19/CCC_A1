@@ -24,6 +24,6 @@ fi
 
 # Run the job from the directory where it was launched (default)
 module load Python/3.7.3-spartan_gcc-8.1.0
-python -m pip install --user ijson pprint
+#python -m pip install --user ijson pprint
 mpirun -n 4 python test.py 
 

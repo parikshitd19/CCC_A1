@@ -21,6 +21,12 @@ f_name = "data/bigTwitter.json"
 #open file
 f = open(f_name, "rb")
 
+def add_to_dict(dictionary,element):
+	if element in dictionary.keys():
+		dictionary[element]+=1
+	else:
+		dictionary[element]=1
+	return dictionary
 
 ####################################
 #use No. of processes to split lines in file
@@ -34,7 +40,6 @@ if rank == 0:
     last_lines = 0
     duration = f_size/t_size
     splits = [[int(i * duration),int((i+1) * duration)] for i in range(t_size)]
-    print(splits)
 
     for i,split in enumerate(splits):
         start,end = split
@@ -44,7 +49,7 @@ if rank == 0:
         f.readline()
         splits[i][1] = f.tell() 
         splits[i+1][0] = f.tell()
-    print(splits)
+    print("Splits:", splits)
     print("###########################")
     for j,chunk in enumerate(splits,1):
         comm.send(chunk,dest=j)
@@ -63,14 +68,16 @@ if rank == 0:
                 set(l_result) | set(result[1])}
     print("Languages total : ", sum(l_result.values()))
     print("Hashtags total : ", sum(h_result.values())) 
+    
     h_sorted = {x: y for x,y in sorted(h_result.items(), key = lambda item:
         item[1],reverse=True)[0:10]}
     l_sorted = {x: y for x,y in sorted(l_result.items(), key = lambda item:
         item[1],reverse=True)[:10]}
-    print(sum(l_sorted.values()))
+    print("Hashtags - Top 10:")
     for i,(name,count) in enumerate(h_sorted.items(),1):
         print("{}. {},{}".format(i,name,count))
 
+    print("Languages - Top 10:")
     for i,(name,count) in enumerate(l_sorted.items(),1):
         print("{}. {},{}".format(i,name,count))
 
@@ -84,31 +91,27 @@ else:
     #misc
     hashtags = dict()
     languages = dict()
+    #set starting pint for file
     f.seek(0)
-    f.seek(60000)
+    f.seek(120000)
     f.readline()
     line_len = f.tell()
-    print(line_len)
     f.seek(start)
-    print(rank, "this is the start", start, f.tell())
     parser = ijson.parse(f,buf_size=line_len)
+    #prefix to look for strings
     tweet_iso = "rows.item.doc.metadata.iso_language_code"
     tweet_hash = "rows.item.doc.entities.hashtags.item.text"
     retweet_hash = "rows.item.doc.retweeted_status.entities.hashtags.item.text"
     try:
         #find each part of json in stream
-        print("breaks after this",f.tell(),rank)
         f_size = os.path.getsize(f_name)
-        print(f_size)
         if rank > 1:
             f.seek(0)
-            print(f.tell())
             for prefix,event,value in parser:
                 if f.tell() == line_len:
                     f.seek(start)
                     break
                 elif f.tell() > line_len:
-                    f.seek(start)
                     print("fail",f.tell())
                     break
         for prefix,event,value in parser:
@@ -117,21 +120,11 @@ else:
             if f.tell() < end:
                 #check for language
                 if prefix == tweet_iso:
-                        #add 1 if already in dict
-                        if value in languages:
-                            languages[value] = languages[value]+1
-                        #add to dict
-                        else:
-                            languages[value] = 1
+                    languages = add_to_dict(languages,value) 
                 if prefix == tweet_hash or prefix == retweet_hash:
-                        #create new word
-                        word = str()
-                        #make lower
-                        value = value.lower()
-                        if value in hashtags:
-                            hashtags[value] = hashtags[value]+1
-                        else:
-                            hashtags[value] = 1
+                    #make lower
+                    value = value.lower()
+                    hashtags = add_to_dict(hashtags,value) 
             else:
                 break
     #catch exception

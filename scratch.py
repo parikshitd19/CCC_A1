@@ -9,7 +9,17 @@ def add_to_dict(dictionary,element):
 		dictionary[element]=1
 	return dictionary
 
-data=splitfile(open("tinyTwitter.json","r"), format="json", startdepth=2)
+def tweet_processing(tweet,lang_dict,hashtag_dict):
+	if len(tweet['doc']['entities']['hashtags'])>0:
+		for hash in tweet['doc']['entities']['hashtags']:
+			hashtag_dict=add_to_dict(hashtag_dict,hash['text'])
+
+	if tweet['doc']['lang']==tweet['doc']['metadata']['iso_language_code']:
+		lang_dict=add_to_dict(lang_dict,tweet['doc']['lang'])
+	return lang_dict,hashtag_dict
+
+
+data=splitfile(open("data/smallTwitter.json","r"), format="json", startdepth=2)
 
 count=0
 lang_dict={}
@@ -17,12 +27,7 @@ hashtag_dict={}
 
 for s in data:
 	tweet=json.loads(s)
-	if len(tweet['doc']['entities']['hashtags'])>0:
-		for hash in tweet['doc']['entities']['hashtags']:
-			hashtag_dict=add_to_dict(hashtag_dict,hash['text'])
-
-	if tweet['doc']['lang']==tweet['doc']['metadata']['iso_language_code']:
-		lang_dict=add_to_dict(lang_dict,tweet['doc']['lang'])
+	lang_dict,hashtag_dict=tweet_processing(tweet,lang_dict,hashtag_dict)
 	count+=1
 
 

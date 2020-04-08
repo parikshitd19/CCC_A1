@@ -65,7 +65,7 @@ if rank == 0:
         item[1],reverse=True)[0:10]}
     l_sorted = {x: y for x,y in sorted(l_result.items(), key = lambda item:
         item[1],reverse=True)[:10]}
-
+    print(sum(l_sorted.values()))
     for i,(name,count) in enumerate(h_sorted.items(),1):
         print("{}. {},{}".format(i,name,count))
 
@@ -88,7 +88,9 @@ else:
     f.seek(start)
     print(rank, "this is the start", start, f.tell())
     parser = ijson.parse(f,buf_size=line_len)
-
+    tweet_iso = "rows.item.doc.metadata.iso_language_code"
+    tweet_hash = "rows.item.doc.entities.hashtags.item.text"
+    retweet_hash = "rows.item.doc.retweeted_status.entities.hashtags.item.text"
     try:
         #find each part of json in stream
         print("breaks after this",f.tell(),rank)
@@ -106,17 +108,18 @@ else:
                     print("fail",f.tell())
                     break
         for prefix,event,value in parser:
-            print(rank, f.tell(),end,(f.tell()<end))
+            #print(prefix, event, value)
+            #print(rank, f.tell(),end,(f.tell()<end))
             if f.tell() < end:
                 #check for language
-                if prefix == "rows.item.doc.metadata.iso_language_code":
+                if prefix == tweet_iso:
                         #add 1 if already in dict
                         if value in languages:
                             languages[value] = languages[value]+1
                         #add to dict
                         else:
                             languages[value] = 1
-                if prefix == "rows.item.doc.entities.hashtags.item.text":
+                if prefix == tweet_hash or prefix == retweet_hash:
                         #create new word
                         word = str()
                         #make lower

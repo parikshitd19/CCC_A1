@@ -13,9 +13,9 @@ size = comm.size
 rank = comm.rank
 
 
-f_name = "data/tinyTwitter.json"
+#f_name = "data/tinyTwitter.json"
 #f_name = "data/smallTwitter.json"
-#f_name = "data/bigTwitter.json"
+f_name = "data/bigTwitter.json"
 
 
 #open file
@@ -61,6 +61,8 @@ if rank == 0:
                 set(h_result) | set(result[0])}
         l_result = {key: l_result.get(key,0) + result[1].get(key,0) for key in
                 set(l_result) | set(result[1])}
+    print("Languages total : ", sum(l_result.values()))
+    print("Hashtags total : ", sum(h_result.values())) 
     h_sorted = {x: y for x,y in sorted(h_result.items(), key = lambda item:
         item[1],reverse=True)[0:10]}
     l_sorted = {x: y for x,y in sorted(l_result.items(), key = lambda item:
@@ -83,7 +85,9 @@ else:
     hashtags = dict()
     languages = dict()
     f.seek(0)
-    line_len = len(f.readline())
+    f.seek(60000)
+    f.readline()
+    line_len = f.tell()
     print(line_len)
     f.seek(start)
     print(rank, "this is the start", start, f.tell())
@@ -124,14 +128,17 @@ else:
                         word = str()
                         #make lower
                         value = value.lower()
-                        if value in languages:
+                        if value in hashtags:
                             hashtags[value] = hashtags[value]+1
                         else:
                             hashtags[value] = 1
             else:
                 break
     #catch exception
+    except KeyError as k:
+        print(k)
     except Exception as e:
+        print("broke")
         print(e)
 
     comm.send([hashtags,languages],dest=0)

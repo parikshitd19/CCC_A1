@@ -13,9 +13,9 @@ size = comm.size
 rank = comm.rank
 
 
-#f_name = "data/tinyTwitter.json"
-#f_name = "data/smallTwitter.json"
-f_name = "data/bigTwitter.json"
+#f_name = "/home/ljsimon/CCC_A1/data/tinyTwitter.json"
+#f_name = "/home/ljsimon/CCC_A1/data/smallTwitter.json"
+f_name = "/home/ljsimon/CCC_A1/data/bigTwitter.json"
 
 
 #open file
@@ -53,11 +53,6 @@ if rank == 0:
     print("###########################")
     for j,chunk in enumerate(splits,1):
         comm.send(chunk,dest=j)
-    '''
-    else:
-        #need fix here for only one node
-        print("What do you do if theres only one node????")
-    '''
     h_result = dict()
     l_result = dict()
     for i in range(t_size):

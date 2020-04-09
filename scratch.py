@@ -35,7 +35,7 @@ size = comm.size
 rank = comm.rank
 
 
-data=splitfile(open("data/bigTwitter.json","r"), format="json", startdepth=2)
+data=splitfile(open("data/smallTwitter.json","r"), format="json", startdepth=2)
 
 #Number of Tweets
 count=0
@@ -47,32 +47,25 @@ final_hashtag_dict={}
 chunk_size=size
 #Tweets Container
 chunk=[]
+flag=True
 
 
 received_tweet=None
-
-for s in data:
-	if len(chunk)<chunk_size:
+if rank==0:
+	for s in data:
 		tweet=json.loads(s)
 		chunk.append(tweet)
-	if len(chunk)==chunk_size:
-		if rank==0:
-			received_tweet=comm.scatter(chunk,root=0)
-		else:
-			received_tweet=comm.scatter(None,root=0)
-		final_lang_dict,final_hashtag_dict=tweet_processing(received_tweet,final_lang_dict,final_hashtag_dict)
-		chunk=[]
-
-if len(chunk)>0:
-	if rank==0:
+		if len(chunk)==chunk_size:
+			if rank==0:
+				received_tweet=comm.scatter(chunk,root=0)
+			else:
+				received_tweet=comm.scatter(None,root=0)
+			final_lang_dict,final_hashtag_dict=tweet_processing(received_tweet,final_lang_dict,final_hashtag_dict)
+			chunk=[]
+	if len(chunk)>0:
 		for t in chunk:
 			final_lang_dict,final_hashtag_dict=tweet_processing(received_tweet,final_lang_dict,final_hashtag_dict)
-			
-
-if rank!=0:
-	comm.send([final_lang_dict,final_hashtag_dict],dest=0,tag=rank)
-
-if rank==0:
+	recvd=comm.scatter([0]*size,root=0)
 	for i in range(1,size):
 		r=comm.recv(source=i,tag=i)
 		final_lang_dict=combine_dict(final_lang_dict,r[0])
@@ -81,6 +74,47 @@ if rank==0:
 	l_sorted = {x: y for x,y in sorted(final_lang_dict.items(), key = lambda item:item[1],reverse=True)[:10]}
 	print(h_sorted)
 	print(l_sorted)
+else:
+	while flag:
+		received_tweet=comm.scatter(None,root=0)
+		if received_tweet==0:
+			flag=False
+			comm.send([final_lang_dict,final_hashtag_dict],dest=0,tag=rank)
+		else:
+			final_lang_dict,final_hashtag_dict=tweet_processing(received_tweet,final_lang_dict,final_hashtag_dict)
+			
+
+
+# for s in data:
+# 	if len(chunk)<chunk_size:
+# 		tweet=json.loads(s)
+# 		chunk.append(tweet)
+# 	if len(chunk)==chunk_size:
+# 		if rank==0:
+# 			received_tweet=comm.scatter(chunk,root=0)
+# 		else:
+# 			received_tweet=comm.scatter(None,root=0)
+# 		final_lang_dict,final_hashtag_dict=tweet_processing(received_tweet,final_lang_dict,final_hashtag_dict)
+# 		chunk=[]
+
+# if len(chunk)>0:
+# 	if rank==0:
+# 		for t in chunk:
+# 			final_lang_dict,final_hashtag_dict=tweet_processing(received_tweet,final_lang_dict,final_hashtag_dict)
+			
+
+# if rank!=0:
+# 	comm.send([final_lang_dict,final_hashtag_dict],dest=0,tag=rank)
+
+# if rank==0:
+# 	for i in range(1,size):
+# 		r=comm.recv(source=i,tag=i)
+# 		final_lang_dict=combine_dict(final_lang_dict,r[0])
+# 		final_hashtag_dict=combine_dict(final_hashtag_dict,r[1])
+# 	h_sorted = {x: y for x,y in sorted(final_hashtag_dict.items(), key = lambda item:item[1],reverse=True)[0:10]}
+# 	l_sorted = {x: y for x,y in sorted(final_lang_dict.items(), key = lambda item:item[1],reverse=True)[:10]}
+# 	print(h_sorted)
+# 	print(l_sorted)
 
 
 

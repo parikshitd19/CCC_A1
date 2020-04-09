@@ -35,7 +35,7 @@ size = comm.size
 rank = comm.rank
 
 
-data=splitfile(open("data/smallTwitter.json","r"), format="json", startdepth=2)
+data=splitfile(open("data/bigTwitter.json","r"), format="json", startdepth=2)
 
 #Number of Tweets
 count=0

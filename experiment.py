@@ -15,8 +15,8 @@ rank = comm.rank
 
 #f_name = "/home/ljsimon/CCC_A1/data/tinyTwitter.json"
 #f_name = "/home/ljsimon/CCC_A1/data/smallTwitter.json"
-#f_name = "/home/ljsimon/CCC_A1/data/bigTwitter.json"
-f_name = "data/smallTwitter.json"
+f_name = "/home/ljsimon/CCC_A1/data/bigTwitter.json"
+#f_name = "data/smallTwitter.json"
 
 
 #open file
@@ -147,7 +147,7 @@ else:
     languages = dict()
     #set starting pint for file
     f.seek(0)
-    f.seek(1024)
+    f.seek(60000)
     f.readline()
     line_len = f.tell()
     print(start,end)

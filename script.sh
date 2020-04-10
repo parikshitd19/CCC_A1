@@ -9,7 +9,7 @@
 #SBATCH --job-name="CCC_test_"
 
 # Maximum number of tasks/CPU cores used by the job:
-#SBATCH --nodes=2
+#SBATCH --nodes=1
 #SBATCH --ntasks=8
 
 
@@ -25,5 +25,5 @@ fi
 
 # Run the job from the directory where it was launched (default)
 module load Python/3.7.3-spartan_gcc-8.1.0
-mpirun -n 8 python 2_test.py
+mpirun -n 8 python scratch.py
 

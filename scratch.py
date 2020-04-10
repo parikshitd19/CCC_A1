@@ -34,8 +34,8 @@ comm.Barrier()
 size = comm.size
 rank = comm.rank
 
-
-data=splitfile(open("data/smallTwitter.json","r"), format="json", startdepth=2)
+if rank == 0:
+    data=splitfile(open("data/bigTwitter.json","r"), format="json", startdepth=2)
 
 #Number of Tweets
 count=0
@@ -72,8 +72,13 @@ if rank==0:
 		final_hashtag_dict=combine_dict(final_hashtag_dict,r[1])
 	h_sorted = {x: y for x,y in sorted(final_hashtag_dict.items(), key = lambda item:item[1],reverse=True)[0:10]}
 	l_sorted = {x: y for x,y in sorted(final_lang_dict.items(), key = lambda item:item[1],reverse=True)[:10]}
-	print(h_sorted)
-	print(l_sorted)
+    print("Hashtags - Top 10:")
+    for i,(name,count) in enumerate(h_sorted.items(),1):
+        print("{}. {},{}".format(i,name,count))
+
+    print("Languages - Top 10:")
+    for i,(name,count) in enumerate(l_sorted.items(),1):
+        print("{}. {},{}".format(i,name,count))
 else:
 	while flag:
 		received_tweet=comm.scatter(None,root=0)

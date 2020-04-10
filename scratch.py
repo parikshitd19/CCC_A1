@@ -21,6 +21,7 @@ def tweet_processing(tweet,lang_dict,hashtag_dict):
 		lang_dict=add_to_dict(lang_dict,tweet['doc']['lang'])
 	return lang_dict,hashtag_dict
 
+#Combine 2 dictionaries
 def combine_dict(dict1,dict2):
 	for key in dict2.keys():
 		if key in dict1.keys():
@@ -44,10 +45,13 @@ count=0
 final_lang_dict={}
 #Dictionary of HashTags
 final_hashtag_dict={}
-#chunk size
-chunk_size=size
 #Tweets Container
 chunk=[]
+#Package Size
+package_size=1000
+#chunk size
+chunk_size=size*package_size
+
 flag=True
 
 
@@ -57,15 +61,14 @@ if rank==0:
 		tweet=json.loads(s)
 		chunk.append(tweet)
 		if len(chunk)==chunk_size:
-			if rank==0:
-				received_tweet=comm.scatter(chunk,root=0)
-			else:
-				received_tweet=comm.scatter(None,root=0)
-			final_lang_dict,final_hashtag_dict=tweet_processing(received_tweet,final_lang_dict,final_hashtag_dict)
+			chunk=[chunk[x:x+package_size] for x in range(0,chunk_size,package_size)]
+			received_tweets=comm.scatter(chunk,root=0)
+			for received_tweet in received_tweets:
+				final_lang_dict,final_hashtag_dict=tweet_processing(received_tweet,final_lang_dict,final_hashtag_dict)
 			chunk=[]
 	if len(chunk)>0:
 		for t in chunk:
-			final_lang_dict,final_hashtag_dict=tweet_processing(received_tweet,final_lang_dict,final_hashtag_dict)
+			final_lang_dict,final_hashtag_dict=tweet_processing(t,final_lang_dict,final_hashtag_dict)
 	recvd=comm.scatter([0]*size,root=0)
 	for i in range(1,size):
 		r=comm.recv(source=i,tag=i)
@@ -82,12 +85,13 @@ if rank==0:
 		print("{}. {},{}".format(i,name,count))
 else:
 	while flag:
-		received_tweet=comm.scatter(None,root=0)
-		if received_tweet==0:
+		received_tweets=comm.scatter(None,root=0)
+		if received_tweets==0:
 			flag=False
 			comm.send([final_lang_dict,final_hashtag_dict],dest=0,tag=rank)
 		else:
-			final_lang_dict,final_hashtag_dict=tweet_processing(received_tweet,final_lang_dict,final_hashtag_dict)
+			for received_tweet in received_tweets:
+				final_lang_dict,final_hashtag_dict=tweet_processing(received_tweet,final_lang_dict,final_hashtag_dict)
 			
 
 

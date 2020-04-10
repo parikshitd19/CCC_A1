@@ -1,6 +1,7 @@
 from splitstream import splitfile
 import json
 from mpi4py import MPI
+import string
 
 #Updating a Dictionary
 def add_to_dict(dictionary,element):
@@ -14,7 +15,7 @@ def add_to_dict(dictionary,element):
 def tweet_processing(tweet,lang_dict,hashtag_dict):
 	if len(tweet['doc']['entities']['hashtags'])>0:
 		for hash in tweet['doc']['entities']['hashtags']:
-			hashtag_dict=add_to_dict(hashtag_dict,hash['text'])
+			hashtag_dict=add_to_dict(hashtag_dict,hash['text'].lower())
 
 	if tweet['doc']['lang']==tweet['doc']['metadata']['iso_language_code']:
 		lang_dict=add_to_dict(lang_dict,tweet['doc']['lang'])
@@ -35,7 +36,7 @@ size = comm.size
 rank = comm.rank
 
 if rank == 0:
-    data=splitfile(open("data/bigTwitter.json","r"), format="json", startdepth=2)
+    data=splitfile(open("data/smallTwitter.json","r"), format="json", startdepth=2)
 
 #Number of Tweets
 count=0
@@ -72,13 +73,13 @@ if rank==0:
 		final_hashtag_dict=combine_dict(final_hashtag_dict,r[1])
 	h_sorted = {x: y for x,y in sorted(final_hashtag_dict.items(), key = lambda item:item[1],reverse=True)[0:10]}
 	l_sorted = {x: y for x,y in sorted(final_lang_dict.items(), key = lambda item:item[1],reverse=True)[:10]}
-    print("Hashtags - Top 10:")
-    for i,(name,count) in enumerate(h_sorted.items(),1):
-        print("{}. {},{}".format(i,name,count))
+	print("Hashtags - Top 10:")
+	for i,(name,count) in enumerate(h_sorted.items(),1):
+		print("{}. {},{}".format(i,name,count))
 
-    print("Languages - Top 10:")
-    for i,(name,count) in enumerate(l_sorted.items(),1):
-        print("{}. {},{}".format(i,name,count))
+	print("Languages - Top 10:")
+	for i,(name,count) in enumerate(l_sorted.items(),1):
+		print("{}. {},{}".format(i,name,count))
 else:
 	while flag:
 		received_tweet=comm.scatter(None,root=0)

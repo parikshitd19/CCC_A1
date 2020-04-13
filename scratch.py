@@ -2,54 +2,68 @@ from splitstream import splitfile
 import json
 from mpi4py import MPI
 import string
+import time
+
+start = time.time()
+
+langs = {'ar': 'Arabic', 'bn': 'Bengali', 'cs': 'Czech', 'da': 'Danish', 'de':
+'German', 'el': 'Greek', 'en': 'English', 'es': 'Spanish','fa': 'Persian',
+'fi': 'Finnish', 'fr': 'French', 'he': 'Hebrew', 'hi': 'Hindi', 'hu':
+'Hungarian', 'id': 'Indonesian','it': 'Italian', 'ja': 'Japanese', 'ko':
+'Korean', 'msa': 'Malay', 'nl': 'Dutch', 'no': 'Norwegian', 'pl': 'Polish',
+'pt': 'Portuguese', 'ro': 'Romanian','ru': 'Russian', 'sv': 'Swedish', 'th':
+'Thai', 'fil': 'Filipino', 'tr': 'Turkish', 'uk': 'Ukrainian', 'ur':
+'Urdu','vi': 'Vietnamese', 'zh_cn': 'Chinese (simplified)', 'zh_tw': 'Chinese
+(traditional)','und':'undefined'}
+ 
 
 #extract hashtags from tweet
 def extract_hashtags(tweet):
-	hashtags=[]
+    hashtags=[]
 
-	#extracting hashtags from tweet
-	if len(tweet['doc']['entities']['hashtags'])>0:
-		hashtags.extend([hash['text'].lower() for hash in tweet['doc']['entities']['hashtags']])
-	
-	other_hashtags_keys=["retweeted_status","extended_tweet","quoted_status"]
-	#extracting the hashtags from  the original tweet in a retweet,extended tweet, quoted tweet
-	for ohk in other_hashtags_keys:
-		if ohk in list(tweet["doc"].keys()):
-			if "entities" in list(tweet["doc"][ohk].keys()) and  len(tweet["doc"][ohk]["entities"]["hashtags"])>0:
-				hashtags.extend([hash['text'].lower() for hash in tweet["doc"][ohk]["entities"]["hashtags"]])
+    #extracting hashtags from tweet
+    if len(tweet['doc']['entities']['hashtags'])>0:
+        hashtags.extend([hash['text'].lower() for hash in tweet['doc']['entities']['hashtags']])
+    
+    other_hashtags_keys=["retweeted_status","extended_tweet","quoted_status"]
+    #extracting the hashtags from  the original tweet in a retweet,extended tweet, quoted tweet
+    for ohk in other_hashtags_keys:
+        if ohk in list(tweet["doc"].keys()):
+            if "entities" in list(tweet["doc"][ohk].keys()) and  len(tweet["doc"][ohk]["entities"]["hashtags"])>0:
+                hashtags.extend([hash['text'].lower() for hash in tweet["doc"][ohk]["entities"]["hashtags"]])
 
-	hashtags=list(set(hashtags))
-	return hashtags
+    hashtags=list(set(hashtags))
+    return hashtags
 
 
 #Updating a Dictionary
 def add_to_dict(dictionary,element):
-	if element in dictionary.keys():
-		dictionary[element]+=1
-	else:
-		dictionary[element]=1
-	return dictionary
+    if element in dictionary.keys():
+        dictionary[element]+=1
+    else:
+        dictionary[element]=1
+    return dictionary
 
 #Extracting data from a tweet
 def tweet_processing(tweet,lang_dict,hashtag_dict):
-	if len(tweet['doc']['entities']['hashtags'])>0:
-		list_of_hashtags=extract_hashtags(tweet)
-		for hashtag in list_of_hashtags:
-			hashtag_dict=add_to_dict(hashtag_dict,hashtag)
+    if len(tweet['doc']['entities']['hashtags'])>0:
+        list_of_hashtags=extract_hashtags(tweet)
+        for hashtag in list_of_hashtags:
+            hashtag_dict=add_to_dict(hashtag_dict,hashtag)
 
-	if tweet['doc']['lang']==tweet['doc']['metadata']['iso_language_code']:
-		lang_dict=add_to_dict(lang_dict,tweet['doc']['lang'])
-	
-	return lang_dict,hashtag_dict
+    if tweet['doc']['lang']==tweet['doc']['metadata']['iso_language_code']:
+        lang_dict=add_to_dict(lang_dict,tweet['doc']['lang'])
+    
+    return lang_dict,hashtag_dict
 
 #Combine 2 dictionaries
 def combine_dict(dict1,dict2):
-	for key in dict2.keys():
-		if key in dict1.keys():
-			dict1[key]+=dict2[key]
-		else:
-			dict1[key]=dict2[key]
-	return dict1
+    for key in dict2.keys():
+        if key in dict1.keys():
+            dict1[key]+=dict2[key]
+        else:
+            dict1[key]=dict2[key]
+    return dict1
 
 #MPI Variables
 comm = MPI.COMM_WORLD
@@ -59,7 +73,7 @@ rank = comm.rank
 
 #The file is parsed by a single process as a stream ensuring the whole file is not read into the memory at once
 if rank == 0:
-    data=splitfile(open("data/smallTwitter.json","r"), format="json", startdepth=2)
+    data=splitfile(open("data/bigTwitter.json","r"), format="json", startdepth=2)
 
 #Number of Tweets
 count=0
@@ -79,43 +93,46 @@ flag=True
 
 received_tweet=None
 if rank==0:
-	for s in data:
-		tweet=json.loads(s)
-		chunk.append(tweet)
-		if len(chunk)==chunk_size:
-			chunk=[chunk[x:x+package_size] for x in range(0,chunk_size,package_size)]
-			received_tweets=comm.scatter(chunk,root=0)
-			for received_tweet in received_tweets:
-				final_lang_dict,final_hashtag_dict=tweet_processing(received_tweet,final_lang_dict,final_hashtag_dict)
-			chunk=[]
-	
-	if len(chunk)>0:
-		for t in chunk:
-			final_lang_dict,final_hashtag_dict=tweet_processing(t,final_lang_dict,final_hashtag_dict)
-	
-	recvd=comm.scatter([0]*size,root=0)
-	
-	for i in range(1,size):
-		r=comm.recv(source=i,tag=i)
-		final_lang_dict=combine_dict(final_lang_dict,r[0])
-		final_hashtag_dict=combine_dict(final_hashtag_dict,r[1])
-	
-	h_sorted = {x: y for x,y in sorted(final_hashtag_dict.items(), key = lambda item:item[1],reverse=True)[0:10]}
-	l_sorted = {x: y for x,y in sorted(final_lang_dict.items(), key = lambda item:item[1],reverse=True)[:10]}
-	print("Hashtags - Top 10:")
-	for i,(name,count) in enumerate(h_sorted.items(),1):
-		print("{}. {},{}".format(i,name,count))
+    for s in data:
+        tweet=json.loads(s)
+        chunk.append(tweet)
+        if len(chunk)==chunk_size:
+            chunk=[chunk[x:x+package_size] for x in range(0,chunk_size,package_size)]
+            received_tweets=comm.scatter(chunk,root=0)
+            for received_tweet in received_tweets:
+                final_lang_dict,final_hashtag_dict=tweet_processing(received_tweet,final_lang_dict,final_hashtag_dict)
+            chunk=[]
+    
+    if len(chunk)>0:
+        for t in chunk:
+            final_lang_dict,final_hashtag_dict=tweet_processing(t,final_lang_dict,final_hashtag_dict)
+    
+    recvd=comm.scatter([0]*size,root=0)
+    #recv all final comms from ranks    
+    for i in range(1,size):
+        r=comm.recv(source=i,tag=i)
+        final_lang_dict=combine_dict(final_lang_dict,r[0])
+        final_hashtag_dict=combine_dict(final_hashtag_dict,r[1])
+    #sort and print hashtag and language dict   
+    h_sorted = {x: y for x,y in sorted(final_hashtag_dict.items(), key = lambda item:item[1],reverse=True)[0:10]}
+    l_sorted = {x: y for x,y in sorted(final_lang_dict.items(), key = lambda item:item[1],reverse=True)[:10]}
+    print("Hashtags - Top 10:")
+    for i,(name,count) in enumerate(h_sorted.items(),1):
+        print("{}. {},{}".format(i,name,count))
 
-	print("Languages - Top 10:")
-	for i,(name,count) in enumerate(l_sorted.items(),1):
-		print("{}. {},{}".format(i,name,count))
+    print("Languages - Top 10:")
+    for i,(name,count) in enumerate(l_sorted.items(),1):
+        print("{}. {}({}),{}".format(i,langs[name],name,count))
+    end = time.time()
+    print("Time in seconds = ", start - end)
+
 else:
-	while flag:
-		received_tweets=comm.scatter(None,root=0)
-		if received_tweets==0:
-			flag=False
-			comm.send([final_lang_dict,final_hashtag_dict],dest=0,tag=rank)
-		else:
-			for received_tweet in received_tweets:
-				final_lang_dict,final_hashtag_dict=tweet_processing(received_tweet,final_lang_dict,final_hashtag_dict)
-			
+    while flag:
+        received_tweets=comm.scatter(None,root=0)
+        if received_tweets==0:
+            flag=False
+            comm.send([final_lang_dict,final_hashtag_dict],dest=0,tag=rank)
+        else:
+            for received_tweet in received_tweets:
+                final_lang_dict,final_hashtag_dict=tweet_processing(received_tweet,final_lang_dict,final_hashtag_dict)
+            

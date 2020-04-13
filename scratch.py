@@ -3,18 +3,10 @@ import json
 from mpi4py import MPI
 import string
 import time
+from iso639 import languages as langs
 
 start = time.time()
 
-langs = {'ar': 'Arabic', 'bn': 'Bengali', 'cs': 'Czech', 'da': 'Danish', 'de':
-'German', 'el': 'Greek', 'en': 'English', 'es': 'Spanish','fa': 'Persian',
-'fi': 'Finnish', 'fr': 'French', 'he': 'Hebrew', 'hi': 'Hindi', 'hu':
-'Hungarian', 'id': 'Indonesian','it': 'Italian', 'ja': 'Japanese', 'ko':
-'Korean', 'msa': 'Malay', 'nl': 'Dutch', 'no': 'Norwegian', 'pl': 'Polish',
-'pt': 'Portuguese', 'ro': 'Romanian','ru': 'Russian', 'sv': 'Swedish', 'th':
-'Thai', 'fil': 'Filipino', 'tr': 'Turkish', 'uk': 'Ukrainian', 'ur':
-'Urdu','vi': 'Vietnamese', 'zh_cn': 'Chinese (simplified)', 'zh_tw': 'Chinese
-(traditional)','und':'undefined'}
  
 
 #extract hashtags from tweet
@@ -93,16 +85,18 @@ flag=True
 
 received_tweet=None
 if rank==0:
+    #loop through data
     for s in data:
         tweet=json.loads(s)
         chunk.append(tweet)
+        #once the chunk size can be equally distributed send it
         if len(chunk)==chunk_size:
             chunk=[chunk[x:x+package_size] for x in range(0,chunk_size,package_size)]
             received_tweets=comm.scatter(chunk,root=0)
+            #process tweet
             for received_tweet in received_tweets:
                 final_lang_dict,final_hashtag_dict=tweet_processing(received_tweet,final_lang_dict,final_hashtag_dict)
-            chunk=[]
-    
+            chunk=[] 
     if len(chunk)>0:
         for t in chunk:
             final_lang_dict,final_hashtag_dict=tweet_processing(t,final_lang_dict,final_hashtag_dict)
@@ -111,20 +105,28 @@ if rank==0:
     #recv all final comms from ranks    
     for i in range(1,size):
         r=comm.recv(source=i,tag=i)
+    
         final_lang_dict=combine_dict(final_lang_dict,r[0])
         final_hashtag_dict=combine_dict(final_hashtag_dict,r[1])
     #sort and print hashtag and language dict   
     h_sorted = {x: y for x,y in sorted(final_hashtag_dict.items(), key = lambda item:item[1],reverse=True)[0:10]}
     l_sorted = {x: y for x,y in sorted(final_lang_dict.items(), key = lambda item:item[1],reverse=True)[:10]}
+    #print hashtags
     print("Hashtags - Top 10:")
     for i,(name,count) in enumerate(h_sorted.items(),1):
         print("{}. {},{}".format(i,name,count))
-
+    #print languages 
     print("Languages - Top 10:")
     for i,(name,count) in enumerate(l_sorted.items(),1):
-        print("{}. {}({}),{}".format(i,langs[name],name,count))
+        if name == "und":
+            print("{}. undefined(und),{}".format(i,count))
+        elif name == "in":
+            print("{}. Indonesian(in),{}".format(i,count))
+        else:
+            full_name = langs.get(part1=name).name
+            print("{}. {}({}),{}".format(i,full_name,name,count))
     end = time.time()
-    print("Time in seconds = ", start - end)
+    print("Time in seconds = ", end - start)
 
 else:
     while flag:

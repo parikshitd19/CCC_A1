@@ -10,7 +10,7 @@
 
 # Maximum number of tasks/CPU cores used by the job:
 #SBATCH --nodes=1
-#SBATCH --ntasks=1
+#SBATCH --ntasks-per-node=1
 
 
 
@@ -25,4 +25,5 @@ fi
 
 # Run the job from the directory where it was launched (default)
 module load Python/3.7.3-spartan_gcc-8.1.0
-time mpirun -n 1 python ../experiment.py 
+mpirun -n 1 python scrat8h.py
+

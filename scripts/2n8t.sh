@@ -3,14 +3,14 @@
 # Mon Apr 06 2020 20:15:04 GMT+1000 (Australian Eastern Standard Time)
 
 # Partition for the job:
-#SBATCH --partition=cloud
+#SBATCH --partition=physical
 
 # The name of the job:
 #SBATCH --job-name="CCC_test_"
 
 # Maximum number of tasks/CPU cores used by the job:
-#SBATCH --nodes=1
-#SBATCH --ntasks=8
+#SBATCH --nodes=2
+#SBATCH --ntasks-per-node=4
 
 
 
@@ -25,4 +25,5 @@ fi
 
 # Run the job from the directory where it was launched (default)
 module load Python/3.7.3-spartan_gcc-8.1.0
-time mpirun -n 8 python ../experiment.py 
+mpirun -n 8 python scratch.py
+

@@ -11,10 +11,12 @@ def extract_hashtags(tweet):
 	if len(tweet['doc']['entities']['hashtags'])>0:
 		hashtags.extend([hash['text'].lower() for hash in tweet['doc']['entities']['hashtags']])
 	
-	#extracting the hashtags from  the original tweet in a retweet
-	if "retweeted_status" in list(tweet["doc"].keys()):
-		if "entities" in list(tweet["doc"]["retweeted_status"].keys()) and  len(tweet["doc"]["retweeted_status"]["entities"]["hashtags"])>0:
-			hashtags.extend([hash['text'].lower() for hash in tweet["doc"]["retweeted_status"]["entities"]["hashtags"]])
+	other_hashtags_keys=["retweeted_status","extended_tweet","quoted_status"]
+	#extracting the hashtags from  the original tweet in a retweet,extended tweet, quoted tweet
+	for ohk in other_hashtags_keys:
+		if ohk in list(tweet["doc"].keys()):
+			if "entities" in list(tweet["doc"][ohk].keys()) and  len(tweet["doc"][ohk]["entities"]["hashtags"])>0:
+				hashtags.extend([hash['text'].lower() for hash in tweet["doc"][ohk]["entities"]["hashtags"]])
 
 	hashtags=list(set(hashtags))
 	return hashtags
@@ -37,6 +39,7 @@ def tweet_processing(tweet,lang_dict,hashtag_dict):
 
 	if tweet['doc']['lang']==tweet['doc']['metadata']['iso_language_code']:
 		lang_dict=add_to_dict(lang_dict,tweet['doc']['lang'])
+	
 	return lang_dict,hashtag_dict
 
 #Combine 2 dictionaries
@@ -54,6 +57,7 @@ comm.Barrier()
 size = comm.size
 rank = comm.rank
 
+#The file is parsed by a single process as a stream ensuring the whole file is not read into the memory at once
 if rank == 0:
     data=splitfile(open("data/smallTwitter.json","r"), format="json", startdepth=2)
 
@@ -84,14 +88,18 @@ if rank==0:
 			for received_tweet in received_tweets:
 				final_lang_dict,final_hashtag_dict=tweet_processing(received_tweet,final_lang_dict,final_hashtag_dict)
 			chunk=[]
+	
 	if len(chunk)>0:
 		for t in chunk:
 			final_lang_dict,final_hashtag_dict=tweet_processing(t,final_lang_dict,final_hashtag_dict)
+	
 	recvd=comm.scatter([0]*size,root=0)
+	
 	for i in range(1,size):
 		r=comm.recv(source=i,tag=i)
 		final_lang_dict=combine_dict(final_lang_dict,r[0])
 		final_hashtag_dict=combine_dict(final_hashtag_dict,r[1])
+	
 	h_sorted = {x: y for x,y in sorted(final_hashtag_dict.items(), key = lambda item:item[1],reverse=True)[0:10]}
 	l_sorted = {x: y for x,y in sorted(final_lang_dict.items(), key = lambda item:item[1],reverse=True)[:10]}
 	print("Hashtags - Top 10:")

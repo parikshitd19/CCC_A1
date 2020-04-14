@@ -76,7 +76,7 @@ final_hashtag_dict={}
 #Tweets Container
 chunk=[]
 #Package Size
-package_size=1000
+package_size=1
 #chunk size
 chunk_size=size*package_size
 

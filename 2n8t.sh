@@ -25,5 +25,5 @@ fi
 
 # Run the job from the directory where it was launched (default)
 module load Python/3.7.3-spartan_gcc-8.1.0
-mpirun -n 8 python scratch.py
+mpirun -n 8 python twitter_parse.py
 
